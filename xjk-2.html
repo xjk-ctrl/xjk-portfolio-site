@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>许俊康 XJK — Designer & AI Curator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--acid:#C6FF00;--bg:#060608;--bg2:#0c0c10;--bg3:#101014;--text:#fff;--muted:#52525b;--muted2:#a1a1aa;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;cursor:none;overflow-x:hidden;}
+#cursor{position:fixed;width:10px;height:10px;background:var(--acid);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .15s,height .15s;}
+#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(198,255,0,.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .28s,height .28s,border-color .2s;}
+body:has(a:hover) #cursor,body:has(button:hover) #cursor{width:18px;height:18px;}
+body:has(a:hover) #cursor-ring,body:has(button:hover) #cursor-ring{width:56px;height:56px;border-color:var(--acid);}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:1000;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:0.025;}
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(80px);}
+.orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(198,255,0,0.07) 0%,transparent 70%);top:-100px;left:50%;transform:translateX(-50%);}
+.orb-2{width:400px;height:400px;background:radial-gradient(circle,rgba(120,80,255,0.06) 0%,transparent 70%);bottom:20%;right:-100px;}
+.orb-3{width:350px;height:350px;background:radial-gradient(circle,rgba(0,180,255,0.05) 0%,transparent 70%);bottom:40%;left:-80px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;padding:24px 60px;display:flex;justify-content:space-between;align-items:center;z-index:100;backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.04);background:rgba(6,6,8,0.7);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.16em;color:var(--acid);text-decoration:none;}
+.nav-links{display:flex;gap:44px;list-style:none;align-items:center;}
+.nav-links a{font-size:13px;font-weight:400;letter-spacing:.04em;color:var(--muted2);text-decoration:none;transition:color .2s;}
+.nav-links a:hover{color:var(--text);}
+.nav-cta{padding:9px 22px;background:var(--acid);color:#060608 !important;font-size:13px;font-weight:600;letter-spacing:.02em;text-decoration:none;border-radius:6px;transition:opacity .2s;}
+.nav-cta:hover{opacity:.85;color:#060608 !important;}
+
+/* HERO */
+#hero{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 60px 80px;z-index:1;overflow:hidden;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border:1px solid rgba(198,255,0,.2);border-radius:100px;background:rgba(198,255,0,.05);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--acid);text-transform:uppercase;margin-bottom:36px;opacity:0;transform:translateY(12px);animation:fadeUp .6s ease .2s forwards;}
+.badge-dot{width:5px;height:5px;border-radius:50%;background:var(--acid);animation:pulse 2s ease-in-out infinite;}
+.hero-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(120px,18vw,260px);line-height:.85;letter-spacing:-.01em;background:linear-gradient(160deg,#fff 40%,rgba(255,255,255,.4) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transform:translateY(32px);animation:fadeUp .9s ease .05s forwards;margin-bottom:8px;}
+.hero-name .k{background:linear-gradient(140deg,#C6FF00 0%,#8fb200 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-tagline{font-size:clamp(18px,2.2vw,24px);font-weight:300;color:var(--muted2);line-height:1.6;max-width:540px;margin:0 auto 48px;opacity:0;transform:translateY(16px);animation:fadeUp .7s ease .45s forwards;}
+.hero-tagline strong{color:var(--text);font-weight:500;}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;opacity:0;transform:translateY(16px);animation:fadeUp .7s ease .6s forwards;}
+.btn-primary{padding:14px 32px;background:var(--acid);color:#060608;font-size:15px;font-weight:600;letter-spacing:.01em;text-decoration:none;border-radius:8px;transition:all .2s;box-shadow:0 0 32px rgba(198,255,0,0.2);}
+.btn-primary:hover{box-shadow:0 0 48px rgba(198,255,0,0.35);transform:translateY(-1px);}
+.btn-secondary{padding:14px 32px;border:1px solid var(--border2);color:var(--muted2);font-size:15px;font-weight:400;text-decoration:none;border-radius:8px;transition:all .2s;}
+.btn-secondary:hover{border-color:var(--acid);color:var(--acid);}
+.hero-awards{margin-top:64px;display:flex;gap:32px;justify-content:center;flex-wrap:wrap;opacity:0;transform:translateY(16px);animation:fadeUp .7s ease .75s forwards;}
+.award-pill{display:flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+.award-star{color:var(--acid);}
+
+/* MARQUEE */
+.marquee-wrap{position:relative;z-index:1;overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:20px 0;background:rgba(12,12,16,.8);}
+.marquee-track{display:flex;white-space:nowrap;animation:marquee 30s linear infinite;}
+.m-item{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:.22em;color:var(--muted);padding:0 32px;}
+.m-dot{color:var(--acid) !important;}
+
+/* SECTIONS */
+section{position:relative;z-index:1;padding:128px 60px;}
+.sec-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.26em;color:var(--acid);text-transform:uppercase;margin-bottom:56px;display:flex;align-items:center;gap:18px;}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:80px;}
+
+/* metallic display titles */
+.title-metal{
+  background:linear-gradient(165deg,#fff 0%,#e2e2e2 22%,#8f8f8f 45%,#d4d4d4 55%,#f6f6f6 78%,#9a9a9a 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.25));
+}
+.title-metal-acid{
+  background:linear-gradient(165deg,#e8ff7a 0%,#C6FF00 30%,#6a8f00 48%,#b8e600 62%,#8fb200 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(198,255,0,.35));
+}
+.cal-cap-metal{
+  background:linear-gradient(105deg,#d8f060 0%,#C6FF00 40%,#5a6b00 52%,#c4e820 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+}
+
+/* ABOUT */
+#about{background:var(--bg2);}
+.about-grid{
+  display:grid;
+  grid-template-columns:1fr 1.15fr;
+  grid-template-rows:auto auto;
+  gap:48px 96px;
+  align-items:start;
+}
+.about-hl{grid-column:1;grid-row:1;font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,6.5vw,88px);line-height:1;letter-spacing:.02em;}
+.about-hl .a{-webkit-text-fill-color:transparent;}
+.about-body-wrap{grid-column:2;grid-row:1;min-width:0;}
+.stat-grid{
+  grid-column:1;grid-row:2;
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:var(--border);border:1px solid var(--border);margin-top:0;border-radius:12px;overflow:hidden;
+}
+.cert-strip-wrap{grid-column:2;grid-row:2;width:100%;min-width:0;margin-top:0;}
+@media(max-width:900px){
+  .about-grid{grid-template-columns:1fr;gap:40px;}
+  .about-hl,.about-body-wrap,.stat-grid,.cert-strip-wrap{grid-column:1;grid-row:auto;}
+}
+.stat{background:var(--bg2);padding:28px 24px;}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:52px;color:var(--acid);line-height:1;letter-spacing:.04em;}
+.stat-l{font-size:11px;font-weight:400;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-top:6px;}
+.about-body{font-size:17px;color:#888;line-height:1.85;}
+.about-body p+p{margin-top:20px;}
+.about-body strong{color:var(--text);font-weight:500;}
+/* certificate blinds */
+.cert-strip-label{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--acid);text-transform:uppercase;margin-bottom:12px;}
+.cert-blinds{
+  border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(12,14,22,.92) 0%,rgba(8,10,16,.92) 100%);
+  box-shadow:0 14px 36px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05);
+  padding:14px;
+}
+.cert-blinds-stage{
+  position:relative;height:240px;border:1px solid var(--border);border-radius:12px;
+  background:radial-gradient(circle at 50% 40%,rgba(26,29,42,.82),rgba(8,10,16,.94));overflow:hidden;
+}
+.cert-slat{
+  position:absolute;top:14px;bottom:14px;width:88px;border-radius:2px;overflow:hidden;cursor:pointer;
+  border:1px solid rgba(255,255,255,.16);box-shadow:0 8px 20px rgba(0,0,0,.32);
+  transition:left .42s ease,width .42s ease,filter .35s ease,opacity .35s ease,transform .35s ease;
+  transform-origin:center center;
+  background:#0b0d14;
+}
+.cert-slat img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
+.cert-slat::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.44),rgba(255,255,255,.05) 32%,rgba(0,0,0,.36));pointer-events:none;}
+.cert-slat.is-active{filter:saturate(1.12) brightness(1.05);z-index:30;box-shadow:0 10px 28px rgba(0,0,0,.42),0 0 0 1px rgba(198,255,0,.26);}
+.cert-slat.is-dim{filter:saturate(.72) brightness(.88);}
+.cert-slat.is-active img{object-fit:contain;object-position:center center;background:#0b0d14;}
+.cert-blinds-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 4px 0;}
+.cert-blinds-meta h4{margin:0;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--acid);}
+.cert-blinds-meta p{margin:0;font-size:12px;color:var(--muted2);}
+@media(max-width:700px){
+  .cert-blinds-stage{height:200px;}
+  .cert-slat{top:10px;bottom:10px;width:70px;}
+}
+
+/* PROJECTS */
+#projects{background:var(--bg2);}
+.proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;border-radius:16px;overflow:hidden;}
+.proj-card{position:relative;overflow:hidden;aspect-ratio:4/3;background:var(--bg3);cursor:pointer;}
+.proj-card.wide{grid-column:span 2;aspect-ratio:21/9;}
+.proj-card:hover .proj-overlay{opacity:1;}
+.proj-card:hover .proj-img{transform:scale(1.06);filter:brightness(0.3) saturate(0.6);}
+.proj-card:hover .proj-info{opacity:0;}
+.proj-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;transition:transform .7s ease,filter .4s ease;filter:brightness(0.75) saturate(1.1);}
+.proj-info{position:absolute;bottom:0;left:0;right:0;padding:24px 32px;background:linear-gradient(to top,rgba(6,6,8,.92) 0%,transparent 100%);transition:opacity .3s;}
+.proj-info-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,2.4vw,30px);letter-spacing:.06em;line-height:1;}
+.proj-info-sub{font-size:11px;font-weight:300;color:var(--muted2);margin-top:4px;letter-spacing:.06em;}
+.proj-overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:40px;opacity:0;transition:opacity .32s ease;}
+.proj-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--acid);text-transform:uppercase;margin-bottom:12px;}
+.proj-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,3vw,42px);letter-spacing:.04em;line-height:1.05;margin-bottom:14px;}
+.proj-desc{font-size:13px;font-weight:300;color:#ccc;line-height:1.7;}
+.proj-award{margin-top:18px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--acid);text-transform:uppercase;}
+.proj-award::before{content:"\2605  ";}
+
+/* CAPABILITIES */
+#work{background:var(--bg);}
+.work-list{display:flex;flex-direction:column;}
+.work-item{display:grid;grid-template-columns:80px 1fr auto;align-items:start;padding:36px 0;border-bottom:1px solid var(--border);gap:32px;}
+.work-item:first-child{border-top:1px solid var(--border);}
+.work-item:hover .wi-title{color:var(--acid);}
+.wi-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);padding-top:6px;letter-spacing:.1em;}
+.wi-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,3.8vw,50px);letter-spacing:.04em;transition:color .25s;line-height:1;}
+.wi-desc{font-size:14px;font-weight:300;color:var(--muted2);line-height:1.7;margin-top:12px;max-width:440px;}
+.wi-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;white-space:nowrap;padding-top:8px;}
+
+/* CONTACT */
+#contact{background:var(--bg2);min-height:60vh;display:flex;flex-direction:column;justify-content:center;text-align:center;align-items:center;}
+.contact-hl{font-family:'Bebas Neue',sans-serif;font-size:clamp(72px,10vw,140px);line-height:1.03;letter-spacing:.01em;margin-bottom:28px;padding-top:.06em;}
+.contact-hl .a{-webkit-text-fill-color:transparent;}
+.contact-sub{font-size:18px;font-weight:300;color:var(--muted2);margin-bottom:52px;max-width:400px;}
+.contact-links{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+.c-link{display:inline-flex;align-items:center;gap:10px;padding:15px 30px;border:1px solid var(--border2);font-size:13px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;color:var(--muted2);text-decoration:none;border-radius:8px;transition:border-color .2s,color .2s,background .2s;}
+.c-link:hover{border-color:var(--acid);color:var(--acid);background:rgba(198,255,0,.04);}
+.c-link.primary{background:var(--acid);color:#060608;border-color:var(--acid);font-weight:600;box-shadow:0 0 28px rgba(198,255,0,.2);}
+.c-link.primary:hover{background:transparent;color:var(--acid);box-shadow:none;}
+
+/* FOOTER */
+footer{position:relative;z-index:1;padding:32px 60px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);}
+.f-copy{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+.f-badge{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.f-dot{width:6px;height:6px;border-radius:50%;background:var(--acid);animation:pulse 2.2s ease-in-out infinite;}
+
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .75s ease,transform .75s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+@keyframes marquee{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+/* works detail layout (resource-detail style) */
+.works-shell{max-width:1180px;margin:0 auto;}
+.works-hero-block{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border);}
+.works-breadcrumb{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:16px;}
+.wbc-sep{color:var(--border2);margin:0 6px;}
+.works-page-hl{font-family:'Bebas Neue',sans-serif;font-size:clamp(54px,6.3vw,88px);letter-spacing:.06em;line-height:1.14;margin-bottom:14px;padding-top:.06em;color:var(--acid);}
+.works-lead{font-size:15px;color:var(--muted2);line-height:1.75;max-width:720px;}
+.works-layout{display:grid;grid-template-columns:260px 1fr;gap:48px;align-items:start;}
+@media(max-width:960px){.works-layout{grid-template-columns:1fr;}}
+.works-side{position:sticky;top:100px;display:flex;flex-direction:column;gap:14px;}
+@media(max-width:960px){.works-side{position:relative;top:0;}}
+.works-side-card{padding:18px 20px;border:1px solid var(--border);border-radius:12px;background:rgba(12,12,16,.6);}
+.works-side-highlight{border-color:rgba(198,255,0,.2);background:rgba(198,255,0,.04);}
+.works-side-k{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--acid);text-transform:uppercase;display:block;margin-bottom:8px;}
+.works-side-v{font-size:13px;color:var(--muted2);line-height:1.6;margin:0;}
+.works-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.works-tags span{font-size:11px;padding:6px 12px;border:1px solid var(--border);border-radius:100px;color:var(--muted2);}
+.works-main{display:flex;flex-direction:column;gap:40px;}
+.works-spotlight{display:grid;grid-template-columns:1.25fr 1fr;gap:28px;align-items:center;padding:28px;border:1px solid var(--border);border-radius:16px;background:var(--bg3);overflow:hidden;}
+@media(max-width:768px){.works-spotlight{grid-template-columns:1fr;}}
+.works-spotlight-media{border-radius:12px;overflow:hidden;border:1px solid var(--border);}
+.works-spotlight-media img{width:100%;display:block;vertical-align:middle;}
+.works-spotlight-copy{min-width:0;}
+.works-spot-title-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch;margin:8px 0 12px;}
+.works-spot-title-wrap::-webkit-scrollbar{height:0;}
+.works-spot-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(18px,2.4vw,40px);letter-spacing:.04em;margin:0;white-space:nowrap;line-height:1.15;display:inline-block;min-width:100%;}
+.works-spot-desc{font-size:14px;color:#aaa;line-height:1.7;margin:0;}
+.works-strip{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;}
+@media(max-width:600px){.works-strip{grid-template-columns:1fr;}}
+.works-strip-item{margin:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg3);display:flex;flex-direction:column;min-height:0;}
+.works-strip-pic{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;background:var(--bg3);flex-shrink:0;}
+.works-strip-pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;}
+.works-strip-item figcaption{font-family:'DM Mono',monospace;font-size:14px;letter-spacing:.08em;color:#9ca3af;padding:10px 14px;text-transform:uppercase;flex-shrink:0;}
+.works-panels{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;align-items:stretch;}
+@media(max-width:700px){.works-panels{grid-template-columns:1fr;}}
+.works-panel{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg3);display:flex;flex-direction:column;min-height:0;}
+.works-panel-tall{grid-row:span 1;}
+.works-panel-img{position:relative;aspect-ratio:16/9;width:100%;overflow:hidden;flex-shrink:0;}
+.works-panel-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;transform:scale(1.06);transform-origin:center center;}
+.works-panel.panel-center .works-panel-img img{object-position:center center;transform:scale(1.08);transform-origin:center center;}
+.works-panel-text{padding:18px 20px 22px;flex:1;display:flex;flex-direction:column;}
+.works-panel-text h4{
+  font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;margin-bottom:8px;
+  background:linear-gradient(165deg,#fff 0%,#e2e2e2 22%,#8f8f8f 45%,#d4d4d4 55%,#f6f6f6 78%,#9a9a9a 100%);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.2));
+}
+.works-panel-text p{font-size:13px;color:var(--muted2);line-height:1.65;margin:0;}
+.works-panel-text .proj-award{color:var(--acid);}
+.works-subhl{font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,4.2vw,52px);letter-spacing:.06em;line-height:1.14;margin:24px 0 20px;padding-top:.06em;color:var(--acid);}
+/* 长江文化日历 — 左栏可拖动 / 右栏月历完整展示 */
+.works-cal-bento{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px;align-items:end;}
+@media(max-width:900px){.works-cal-bento{grid-template-columns:1fr;align-items:stretch;}}
+.cal-bento-hero{
+  position:relative;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--bg3);
+  display:flex;flex-direction:column;min-height:480px;height:100%;align-self:stretch;
+}
+.cal-pan-hint{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.12em;color:var(--acid);text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--border);}
+.cal-pan-viewport{
+  position:relative;flex:1;min-height:360px;overflow:hidden;background:#101014;cursor:grab;touch-action:none;
+  --px:0px;--py:0px;
+}
+.cal-pan-viewport.is-drag{cursor:grabbing;}
+.cal-pan-layer{
+  position:absolute;left:50%;top:50%;will-change:transform;
+  transform:translate(calc(-50% + var(--px,0px)),calc(-50% + var(--py,0px)));
+}
+.cal-pan-layer img{display:block;max-width:none;height:auto;user-select:none;pointer-events:none;}
+.cal-bento-cap{padding:16px 18px 18px;border-top:1px solid var(--border);background:linear-gradient(to top,rgba(6,6,8,.95),rgba(12,12,16,.6));flex-shrink:0;}
+.cal-bento-cap span{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.cal-bento-cap p{margin:0;font-size:13px;color:var(--muted2);line-height:1.5;}
+.cal-bento-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto auto;gap:14px;height:100%;align-content:end;}
+@media(max-width:500px){.cal-bento-grid{grid-template-columns:1fr;height:auto;}}
+.cal-bento-cell{margin:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg3);display:flex;flex-direction:column;}
+.cal-bento-cell.cal-bento-span{grid-column:1/-1;}
+.cal-bento-cell:not(.cal-bento-span) .cal-cell-img{position:relative;aspect-ratio:16/11;overflow:hidden;}
+.cal-bento-cell:not(.cal-bento-span) img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;}
+.cal-bento-cell.cal-bento-span .cal-cell-img{
+  display:flex;align-items:center;justify-content:center;min-height:200px;max-height:min(42vw,380px);
+  padding:20px 16px;background:#0b0b0e;
+}
+.cal-bento-cell.cal-bento-span img{width:100%;height:auto;max-height:min(40vw,360px);object-fit:contain;display:block;}
+.cal-bento-cell figcaption{font-family:'DM Mono',monospace;font-size:14px;letter-spacing:.08em;color:#9ca3af;padding:10px 12px;border-top:1px solid var(--border);flex-shrink:0;}
+.works-foot-banner{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--border);}
+.works-foot-banner img{width:100%;display:block;}
+.works-foot-copy{position:absolute;left:0;right:0;bottom:0;padding:24px 28px;background:linear-gradient(to top,rgba(6,6,8,.9),transparent);}
+
+/* image lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(4,6,10,.92);display:flex;align-items:center;justify-content:center;padding:30px;z-index:1200;opacity:0;pointer-events:none;transition:opacity .22s ease;}
+.lightbox.open{opacity:1;pointer-events:auto;}
+.lightbox img{max-width:min(92vw,1400px);max-height:88vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,.16);box-shadow:0 20px 60px rgba(0,0,0,.45);background:#0b0d14;}
+.lightbox-close{position:absolute;top:18px;right:20px;background:transparent;border:1px solid rgba(255,255,255,.25);color:#e5e7eb;padding:6px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.08em;cursor:pointer;}
+</style>
+</head>
+<body>
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a href="#" class="nav-logo">XJK</a>
+  <ul class="nav-links">
+    <li><a href="#about">关于</a></li>
+    <li><a href="#projects">项目</a></li>
+    <li><a href="#work">能力</a></li>
+    <li><a href="mailto:752494160@qq.com" class="nav-cta">联系我</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-badge"><span class="badge-dot"></span>Designer · AI Curator · 3D Artist</div>
+  <h1 class="hero-name">XJ<span class="k">K</span></h1>
+  <p class="hero-tagline">以<strong>审美</strong>为武器<br>用优质素材喂养智能未来</p>
+  <div class="hero-actions">
+    <a href="#projects" class="btn-primary">查看作品</a>
+    <a href="mailto:752494160@qq.com" class="btn-secondary">发起合作 →</a>
+  </div>
+  <div class="hero-awards">
+    <div class="award-pill"><span class="award-star">★</span> CCVR 全国虚拟现实大赛一等奖</div>
+    <div class="award-pill"><span class="award-star">★</span> 米兰设计周湖北分赛区三等奖</div>
+    <div class="award-pill"><span class="award-star">★</span> NCDA 未来设计师湖北奖 ×2</div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="m-item">Brand Design</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">3D Visualization</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">VR Space</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">IP Design</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">AI Curation</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">Cultural Heritage</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">Cyberpunk</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">Brand Design</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">3D Visualization</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">VR Space</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">IP Design</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">AI Curation</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">Cultural Heritage</span><span class="m-item m-dot">✦</span>
+    <span class="m-item">Cyberpunk</span><span class="m-item m-dot">✦</span>
+  </div>
+</div>
+
+<section id="about">
+  <p class="sec-label reveal">01 — About</p>
+  <div class="about-grid">
+    <h2 class="about-hl reveal title-metal">用<br><span class="a title-metal-acid">品味</span><br>定义<br>数据</h2>
+    <div class="about-body-wrap">
+    <div class="about-body reveal">
+      <p>我是<strong>许俊康</strong>，设计师，同时也是 AI 训练数据的策展人。</p>
+      <p>从潮玩 IP 的形象体系，到赛博朋克武汉的沉浸场景；从楚式漆器的 VR 数字空间，到高精度文物数字模型——我的每一个项目都在回答同一个问题：<strong>当传统文化遇见未来技术，边界在哪里？</strong></p>
+      <p>我相信 AI 的上限由训练素材的品质决定。我用设计师的眼光去筛选、构建、标注每一份数据：美感、准确性、信息密度，一样都不妥协。</p>
+    </div>
+    </div>
+    <div class="stat-grid reveal">
+        <div class="stat"><div class="stat-n">5+</div><div class="stat-l">获奖项目</div></div>
+        <div class="stat"><div class="stat-n">3D</div><div class="stat-l">全链路制作</div></div>
+        <div class="stat"><div class="stat-n">VR</div><div class="stat-l">数字空间</div></div>
+        <div class="stat"><div class="stat-n">AI</div><div class="stat-l">数据训练</div></div>
+    </div>
+    <div class="cert-strip-wrap reveal">
+      <p class="cert-strip-label">Awards &amp; Certificates — 获奖与证明</p>
+      <section class="cert-blinds" id="cert-blinds">
+        <div class="cert-blinds-stage" id="cert-blinds-stage" aria-hidden="true">
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-01.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-02.png" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-03.png" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-04.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-05.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-06.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-07.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-08.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-09.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-10.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-11.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-12.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-13.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-14.jpg" alt=""></article>
+          <article class="cert-slat"><img src="./xjk-cert-shutter/cert-15.jpg" alt=""></article>
+        </div>
+        <div class="cert-blinds-meta">
+          <h4>Certificate Blinds</h4>
+          <p id="cert-blinds-index">01 / 15</p>
+        </div>
+      </section>
+    </div>
+  </div>
+</section>
+<section id="projects">
+<p class="sec-label reveal">02 — Selected Works</p>
+<div class="works-shell reveal">
+  <header class="works-hero-block">
+    <p class="works-breadcrumb">首页 <span class="wbc-sep">/</span> 作品集 <span class="wbc-sep">/</span> 精选</p>
+    <h2 class="works-page-hl title-metal">视觉与数字叙事实验</h2>
+    <p class="works-lead">VISUAL &amp; DIGITAL NARRATIVE EXPERIMENTS</p>
+  </header>
+  <div class="works-layout">
+    <aside class="works-side">
+      <div class="works-side-card">
+        <span class="works-side-k">类型</span>
+        <p class="works-side-v">品牌 · IP · 文创 · 3D</p>
+      </div>
+      <div class="works-side-card">
+        <span class="works-side-k">标签</span>
+        <div class="works-tags"><span>赛博城市</span><span>楚文化</span><span>日历书</span><span>长江文化</span></div>
+      </div>
+      <div class="works-side-card works-side-highlight">
+        <span class="works-side-k">荣誉亮点</span>
+        <p class="works-side-v">CCVR 全国一等奖 · 米兰设计周湖北赛区 · NCDA 湖北奖</p>
+      </div>
+    </aside>
+    <div class="works-main">
+      <article class="works-spotlight">
+        <div class="works-spotlight-media">
+          <img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cyber-1.png" alt="赛博江城主视觉">
+        </div>
+        <div class="works-spotlight-copy">
+          <span class="proj-tag">Featured · 赛博江城</span>
+          <div class="works-spot-title-wrap"><h3 class="works-spot-title title-metal">江城夜景 × 东方赛博</h3></div>
+          <p class="works-spot-desc">系列主视觉与延展画面，统一霓虹与建筑剪影的语言。</p>
+          <p class="proj-award">米兰设计周湖北分赛区三等奖 · NCDA未来设计师湖北二等奖</p>
+        </div>
+      </article>
+      <div class="works-strip">
+        <figure class="works-strip-item"><div class="works-strip-pic"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cyber-2.png" alt=""></div><figcaption>延展 · 02</figcaption></figure>
+        <figure class="works-strip-item"><div class="works-strip-pic"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cyber-3.png" alt=""></div><figcaption>延展 · 03</figcaption></figure>
+      </div>
+      <div class="works-panels">
+        <article class="works-panel">
+          <div class="works-panel-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/chu-lacquer-1-1.png" alt="楚式漆器图"></div>
+          <div class="works-panel-text">
+            <h4>楚式漆器</h4>
+            <p>传统纹样与当代版式结合。</p>
+            <p class="proj-award">CCVR 全国虚拟现实大赛一等奖 · NCDA 湖北三等奖</p>
+          </div>
+        </article>
+        <article class="works-panel panel-center">
+          <div class="works-panel-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/chu-lacquer-2.png" alt=""></div>
+          <div class="works-panel-text">
+            <h4>楚式漆器 · 续篇</h4>
+            <p>材质感与色彩渐变强化叙事。</p>
+          </div>
+        </article>
+        <article class="works-panel works-panel-tall">
+          <div class="works-panel-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/hardcore-1.png" alt="硬核玩家"></div>
+          <div class="works-panel-text">
+            <h4>硬核玩家</h4>
+            <p>强对比场景与角色张力。</p>
+          </div>
+        </article>
+        <article class="works-panel">
+          <div class="works-panel-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/guanyin.png" alt="观音"></div>
+          <div class="works-panel-text">
+            <h4>观音 · IP</h4>
+            <p>东方意象与年轻审美。</p>
+          </div>
+        </article>
+      </div>
+      <h3 class="works-subhl title-metal">长江文化日历 · 实物与版式</h3>
+      <div class="works-cal-bento">
+        <article class="cal-bento-hero">
+          <p class="cal-pan-hint">拖拽平移 · 浏览大图细节</p>
+          <div class="cal-pan-viewport" id="cal-pan-viewport">
+            <div class="cal-pan-layer" id="cal-pan-layer">
+              <img id="cal-pan-img" src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/calendar-book-2.png" alt="长江文化日历书实物" draggable="false">
+            </div>
+          </div>
+          <div class="cal-bento-cap">
+            <span class="cal-cap-metal">Physical · 实物</span>
+            <p>日历书成品封面与装帧，长江文化主题一目了然。</p>
+          </div>
+        </article>
+        <div class="cal-bento-grid">
+          <figure class="cal-bento-cell"><div class="cal-cell-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cal-effect-3.png" alt="整体效果图"></div><figcaption>版式 · 整体效果</figcaption></figure>
+          <figure class="cal-bento-cell"><div class="cal-cell-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cal-inner-4.png" alt="内页"></div><figcaption>内页（节选）</figcaption></figure>
+          <figure class="cal-bento-cell cal-bento-span"><div class="cal-cell-img"><img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/cal-month-5.png" alt="月历"></div><figcaption>月历网格 · 节奏与留白</figcaption></figure>
+        </div>
+      </div>
+      <article class="works-foot-banner">
+        <img src="file:///C:/Users/dell/Downloads/xjk-portfolio-assets/award-hero.jpg" alt="颁奖与实物">
+        <div class="works-foot-copy">
+          <span class="proj-tag">现场 · 荣誉</span>
+          <p>大模型与文创赛事现场及证书实物记录。</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</div>
+</section>
+<section id="work">
+  <p class="sec-label reveal">03 — Capabilities</p>
+  <div class="work-list">
+    <div class="work-item reveal"><span class="wi-num">001</span><div><div class="wi-title">3D 场景与沉浸空间</div><div class="wi-desc">电影级三维环境制作，覆盖赛博朋克城市、VR 展览空间、高精度文物重建，全流程独立完成建模·材质·灯光·渲染。</div></div><span class="wi-tag">3D / VR / UE</span></div>
+    <div class="work-item reveal"><span class="wi-num">002</span><div><div class="wi-title">IP 形象与品牌体系</div><div class="wi-desc">从角色概念到三维落地，建立完整的视觉形象系统，包含配色规范、应用场景延伸与品牌周边设计。</div></div><span class="wi-tag">Brand / IP</span></div>
+    <div class="work-item reveal"><span class="wi-num">003</span><div><div class="wi-title">AI 素材策展与训练数据</div><div class="wi-desc">以设计师视角筛选、标注、构建高质量训练数据集；提示词工程优化、RLHF 评审，提升模型的审美输出上限。</div></div><span class="wi-tag">AI / RLHF / Data</span></div>
+    <div class="work-item reveal"><span class="wi-num">004</span><div><div class="wi-title">文化遗产数字化</div><div class="wi-desc">传统文化与数字技术的交叉实践——高精度文物建模、非遗内容可视化、文创产品设计，让历史以当代语言重新发声。</div></div><span class="wi-tag">Heritage / Digital</span></div>
+  </div>
+</section>
+
+<section id="contact">
+  <p class="sec-label reveal" style="justify-content:center;">04 — Contact</p>
+  <h2 class="contact-hl reveal title-metal">有好项目<br>找<span class="a title-metal-acid">XJK</span></h2>
+  <p class="contact-sub reveal">设计、3D、AI 训练数据，都可以聊</p>
+  <div class="contact-links reveal">
+    <a href="mailto:752494160@qq.com" class="c-link primary">邮箱：752494160@qq.com</a>
+    <a href="weixin://dl/chat?username=13871202717" class="c-link">微信：13871202717</a>
+    <a href="#" class="c-link">Behance</a>
+    <a href="#" class="c-link">下载简历 ↗</a>
+  </div>
+</section>
+
+<footer>
+  <span class="f-copy">© 2025 许俊康 XJK Studio — All rights reserved</span>
+  <span class="f-badge"><span class="f-dot"></span>Open to collaboration</span>
+</footer>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightbox-close" type="button">Close</button>
+  <img id="lightbox-img" src="" alt="大图预览">
+</div>
+
+<script>
+var cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+var mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animRing(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animRing);})();
+var canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+var W,H,nodes=[],t=0,mxN=myN=0;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+resize();window.addEventListener('resize',resize);
+document.addEventListener('mousemove',function(e){mxN=e.clientX;myN=e.clientY;});
+function mkNode(){return{x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45,r:Math.random()*2.6+1.1,life:Math.random()*340+180,age:0};}
+for(var i=0;i<128;i++)nodes.push(mkNode());
+var LINK=185,LINK_MOUSE=300;
+function drawBg(){
+  ctx.clearRect(0,0,W,H);t++;
+  ctx.strokeStyle='rgba(255,255,255,0.018)';ctx.lineWidth=.45;
+  var gs=96;
+  for(var x=0;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(var y=0;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  nodes.forEach(function(n){
+    n.x+=n.vx;n.y+=n.vy;n.age++;
+    var dxm=n.x-mxN,dym=n.y-myN,drm=Math.sqrt(dxm*dxm+dym*dym);
+    if(drm<240&&drm>1){n.vx+=dxm/drm*.018;n.vy+=dym/drm*.018;}
+    n.vx*=.998;n.vy*=.998;
+    if(n.x<-40)n.x=W+40;if(n.x>W+40)n.x=-40;if(n.y<-40)n.y=H+40;if(n.y>H+40)n.y=-40;
+    if(n.age>n.life){Object.assign(n,mkNode());n.age=0;}
+    var a=Math.sin(n.age/n.life*Math.PI)*.85+.15;
+    var grd=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r*4);
+    grd.addColorStop(0,'rgba(198,255,0,'+(a*.45)+')');
+    grd.addColorStop(1,'rgba(198,255,0,0)');
+    ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+    ctx.fillStyle=grd;ctx.fill();
+    ctx.beginPath();ctx.arc(n.x,n.y,n.r*.45,0,Math.PI*2);
+    ctx.fillStyle='rgba(255,255,255,'+(a*.35)+')';ctx.fill();
+  });
+  function link(ax,ay,bx,by,maxd,baseA){
+    var dx=ax-bx,dy=ay-by,d=Math.sqrt(dx*dx+dy*dy);
+    if(d<maxd){var al=(1-d/maxd)*baseA;
+      ctx.beginPath();ctx.moveTo(ax,ay);ctx.lineTo(bx,by);
+      ctx.strokeStyle='rgba(198,255,0,'+al+')';ctx.lineWidth=.65;ctx.stroke();
+    }
+  }
+  for(var i=0;i<nodes.length;i++){
+    link(mxN,myN,nodes[i].x,nodes[i].y,LINK_MOUSE,.16);
+    for(var j=i+1;j<nodes.length;j++)link(nodes[i].x,nodes[i].y,nodes[j].x,nodes[j].y,LINK,.13);
+  }
+  var sy=t%H,g=ctx.createLinearGradient(0,sy-40,0,sy+40);
+  g.addColorStop(0,'rgba(198,255,0,0)');g.addColorStop(.5,'rgba(198,255,0,0.018)');g.addColorStop(1,'rgba(198,255,0,0)');
+  ctx.fillStyle=g;ctx.fillRect(0,sy-40,W,80);
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+var obs=new IntersectionObserver(function(entries){
+  entries.forEach(function(e,i){if(e.isIntersecting)setTimeout(function(){e.target.classList.add('visible');},i*80);});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el);});
+
+/* 日历实物图：拖动平移查看大图 */
+(function(){
+  var vp=document.getElementById('cal-pan-viewport');
+  var img=document.getElementById('cal-pan-img');
+  if(!vp||!img)return;
+  var ox=0,oy=0,sx,sy,drag=false,sox,soy;
+  function bounds(){
+    var vw=vp.clientWidth,vh=vp.clientHeight;
+    var iw=img.offsetWidth,ih=img.offsetHeight;
+    if(!iw||!ih)return;
+    var maxX=Math.max(0,(iw-vw)/2);
+    var maxY=Math.max(0,(ih-vh)/2);
+    ox=Math.max(-maxX,Math.min(maxX,ox));
+    oy=Math.max(-maxY,Math.min(maxY,oy));
+    vp.style.setProperty('--px',ox+'px');
+    vp.style.setProperty('--py',oy+'px');
+  }
+  function layout(){
+    var w=Math.round(vp.clientWidth*1.42);
+    img.style.width=w+'px';
+    img.style.height='auto';
+    requestAnimationFrame(bounds);
+  }
+  function firstLayout(){ox=0;oy=0;layout();}
+  img.addEventListener('load',firstLayout);
+  if(img.complete)firstLayout();
+  window.addEventListener('resize',layout);
+  function down(e){
+    drag=true;
+    var t=e.touches?e.touches[0]:e;
+    sx=t.clientX;sy=t.clientY;sox=ox;soy=oy;
+    vp.classList.add('is-drag');
+    if(e.type==='mousedown')e.preventDefault();
+  }
+  function move(e){
+    if(!drag)return;
+    var t=e.touches?e.touches[0]:e;
+    ox=sox+(t.clientX-sx);oy=soy+(t.clientY-sy);bounds();
+    if(e.type==='touchmove')e.preventDefault();
+  }
+  function up(){drag=false;vp.classList.remove('is-drag');}
+  vp.addEventListener('mousedown',down);
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',up);
+  vp.addEventListener('touchstart',down,{passive:false});
+  window.addEventListener('touchmove',move,{passive:false});
+  window.addEventListener('touchend',up);
+})();
+
+/* 证书区：百叶窗 */
+(function(){
+  var root=document.getElementById('cert-blinds');
+  var stage=document.getElementById('cert-blinds-stage');
+  if(!root||!stage)return;
+  var slats=[].slice.call(stage.querySelectorAll('.cert-slat'));
+  var idxEl=document.getElementById('cert-blinds-index');
+  var n=slats.length,active=0,timer=null;
+  if(!n)return;
+
+  function pad(v){return String(v).padStart(2,'0');}
+
+  function render(index){
+    var stageW=stage.clientWidth;
+    var stageH=stage.clientHeight;
+    var slatW=Math.max(56,Math.min(88,Math.round(stageW*0.095)));
+    var expandedW=Math.max(220,Math.round(stageW*0.46));
+    var step=(stageW-slatW)/Math.max(1,n-1);
+    var center=stageW/2;
+
+    slats.forEach(function(s,i){
+      var baseLeft=Math.round(step*i);
+      var near=Math.abs(i-index)<=1;
+      s.classList.remove('is-active','is-dim');
+      if(i===index)s.classList.add('is-active');
+      else if(!near)s.classList.add('is-dim');
+      s.style.width=slatW+'px';
+      s.style.left=baseLeft+'px';
+      s.style.zIndex=String(10+i);
+      s.style.opacity='1';
+      s.style.transform='scale(1)';
+    });
+
+    var leftStart=Math.max(0,center-expandedW/2);
+    var rightLimit=stageW-slatW;
+    leftStart=Math.min(leftStart,Math.max(0,rightLimit-expandedW+slatW));
+
+    slats.forEach(function(s,i){
+      if(i<index){
+        s.style.left=Math.max(4,leftStart-(index-i)*(slatW*0.72))+'px';
+      }else if(i>index){
+        s.style.left=Math.min(rightLimit,leftStart+expandedW+(i-index-1)*(slatW*0.72))+'px';
+      }else{
+        s.style.left=Math.max(0,Math.min(rightLimit,leftStart))+'px';
+        s.style.width=Math.min(stageW-8,expandedW)+'px';
+        s.style.zIndex=String(300+i);
+      }
+    });
+
+    if(idxEl)idxEl.textContent=pad(index+1)+' / '+pad(n);
+  }
+
+  function focusAt(i){
+    active=(i+n)%n;
+    render(active);
+  }
+
+  slats.forEach(function(s,i){
+    s.addEventListener('mouseenter',function(){focusAt(i);});
+    s.addEventListener('click',function(){focusAt(i);});
+    s.addEventListener('touchstart',function(){focusAt(i);},{passive:true});
+  });
+
+  function autoplay(){focusAt(active+1);}
+  function start(){timer=setInterval(autoplay,2200);}
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+
+  root.addEventListener('mouseenter',stop);
+  root.addEventListener('mouseleave',start);
+  window.addEventListener('resize',function(){render(active);});
+
+  render(active);
+  start();
+})();
+
+/* 全站图片：点击查看大图 */
+(function(){
+  var box=document.getElementById('lightbox');
+  var imgEl=document.getElementById('lightbox-img');
+  var closeBtn=document.getElementById('lightbox-close');
+  if(!box||!imgEl||!closeBtn)return;
+  var pics=[].slice.call(document.querySelectorAll('img'));
+
+  function open(src,alt){
+    imgEl.src=src;
+    imgEl.alt=alt||'大图预览';
+    box.classList.add('open');
+    box.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+  function close(){
+    box.classList.remove('open');
+    box.setAttribute('aria-hidden','true');
+    imgEl.src='';
+    document.body.style.overflow='';
+  }
+
+  pics.forEach(function(pic){
+    if(pic.id==='lightbox-img')return;
+    pic.style.cursor='zoom-in';
+    pic.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(!pic.src)return;
+      open(pic.src,pic.alt);
+    });
+  });
+
+  closeBtn.addEventListener('click',close);
+  box.addEventListener('click',function(e){if(e.target===box)close();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close();});
+})();
+
+</script>
+</body>
+</html>

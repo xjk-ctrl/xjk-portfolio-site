@@ -373,6 +373,10 @@ footer{position:relative;z-index:1;padding:32px 60px;display:flex;justify-conten
 .works-strip-pic img{transition:transform .5s ease;}
 .works-strip-item:hover .works-strip-pic img{transform:scale(1.07);}
 
+/* BLUR TEXT */
+.blur-text{filter:blur(5px);transition:filter .3s ease;cursor:pointer;user-select:none;}
+.blur-text:hover{filter:blur(0);}
+
 /* AI PROJECTS */
 .ai-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
 @media(max-width:768px){.ai-grid{grid-template-columns:1fr;}}
@@ -668,7 +672,7 @@ footer{position:relative;z-index:1;padding:32px 60px;display:flex;justify-conten
     <article class="ai-card wide reveal">
       <span class="ai-card-tag">Eval · 竞品分析</span>
       <h3 class="ai-card-title">多模态视频生成竞品评测</h3>
-      <p class="ai-card-desc">对标 Seedance 2.0、Sora 2 Pro、Veo 3.1 等 5 家主流模型，为 Keling 3.0 / Omni 系列构建 6 大核心维度 × 18 项子能力评测体系，搭建人工 + 机标双轨打分流程，输出量化能力差异矩阵与可落地优化建议，其中 2 项被算法团队纳入迭代计划。</p>
+      <p class="ai-card-desc">对标国内外 5 家主流视频生成大模型，为甲方主力产品系列构建 6 大核心维度 × 18 项子能力评测体系，搭建人工 + 机标双轨打分流程，输出量化能力差异矩阵与可落地优化建议，其中 2 项被算法团队纳入迭代计划。</p>
       <div class="ai-card-stats">
         <div><div class="ai-stat-n">5</div><div class="ai-stat-l">竞品模型</div></div>
         <div><div class="ai-stat-n">100+</div><div class="ai-stat-l">评测 Prompt</div></div>
@@ -677,7 +681,6 @@ footer{position:relative;z-index:1;padding:32px 60px;display:flex;justify-conten
       </div>
       <div class="ai-card-tags">
         <span class="ai-tag highlight">T2V / I2V / R2V</span>
-        <span class="ai-tag">Keling 3.0</span>
         <span class="ai-tag">人工 + 机标双轨</span>
         <span class="ai-tag">评测报告</span>
         <span class="ai-tag">优化建议书</span>
